@@ -54,6 +54,16 @@ def main() -> int:
     out_path = os.path.join(out_dir, "entry.txt")
     with open(out_path, "w", encoding="utf-8", newline="\n") as fh:
         fh.write(text)
+
+    # Read back what was written and verify it byte-for-byte, so a
+    # silent short write or encoding slip can never pass unnoticed.
+    with open(out_path, "rb") as fh:
+        written = fh.read()
+    if written != text.encode("utf-8"):
+        print(f"read-back mismatch: wrote {len(text)} characters, "
+              f"read back {len(written)} bytes", file=sys.stderr)
+        return 1
+
     print(f"wrote {out_path} ({len(text)} characters)")
     return 0
 
